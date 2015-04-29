@@ -3,7 +3,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class SudokuSolver {
-	static int dimension= 9;
+	static int dimension;
 	static int puzzle[][]; 
 	
 	static boolean isValid(Coordinates coord, int value) {
@@ -19,10 +19,10 @@ public class SudokuSolver {
 			if (puzzle[row][coord.y] == value)
 				return false;
 		}
-		int x1 = 3 * (coord.x / 3);
-		int y1 = 3 * (coord.y / 3);
-		int x2 = x1 + 2;
-		int y2 = y1 + 2;
+		int x1 = ((int) (Math.sqrt(dimension)) * (coord.x / ((int)Math.sqrt(dimension))));
+		int y1 = ((int) (Math.sqrt(dimension)) * (coord.y / ((int)Math.sqrt(dimension))));
+		int x2 = x1 +((int)Math.sqrt(dimension))-1;
+		int y2 = y1 +((int)Math.sqrt(dimension))-1;
 		for (int x = x1; x <= x2; x++)
 			for (int y = y1; y <= y2; y++)
 				if (puzzle[x][y] == value)
@@ -69,44 +69,51 @@ public class SudokuSolver {
 		Scanner keyboard = new Scanner(System.in);
 		System.out.print("Enter a file name: ");
 		String filename = keyboard.nextLine();
+		System.out.print("Enter the number of rows and columns: ");
+		dimension = Integer.parseInt(keyboard.next());
 		puzzle = new int[dimension][dimension];
 		File file = new File(filename);
 		Scanner sc = new Scanner(file);
-		int xVal = 0, yVal = 0;
+		int[] numArray = new int[(dimension*dimension)];
+		int counter = 0;
 		while (sc.hasNext()) {
 			String next = sc.next();
 			int i = Integer.parseInt(next);
-			puzzle[xVal][yVal] = i;
-			if (xVal < (dimension-1)) {
-				if (yVal < (dimension-1)) {
-					yVal++;
-				} else {
-					yVal = 0;
-					xVal++;
-				}
+			numArray[counter] = i;
+			counter++;
+		}
+		sc.close();
+		counter = 0;
+		for(int x = 0; x < dimension; x++){
+			for(int y = 0; y < dimension; y++){
+				puzzle[x][y] = numArray[counter];
+				counter++;
 			}
 		}
-		System.out.println();
-		sc.close();
 		boolean solved = solve(new Coordinates(0, 0));
 		if (!solved) {
 			System.out.println("SUDOKU cannot be solved.");
 			return;
 		}
 		printPuzzle(puzzle);
+		keyboard.close();
 	}
 
 	static void printPuzzle(int puzzle[][]) {
 		boolean once = true;
 		for (int x = 0; x < dimension; x++) {
 			for (int y = 0; y < dimension; y++) {
-				if ((x) % 3 == 0 && once && x != 0) {
+				if ((x) % ((int)Math.sqrt(dimension)) == 0 && once && x != 0) {
 					System.out.println("                    ");
 					once = false;
 				}
-				System.out.print(puzzle[x][y] + " ");
-				if ((y + 1) % 3 == 0 && y != (dimension-1)) {
-					System.out.print("  ");
+				int num = puzzle[x][y];
+				if(num<10)
+					System.out.print(num + "  ");
+				else
+					System.out.print(num + " ");
+				if ((y + 1) % ((int)Math.sqrt(dimension)) == 0 && y != (dimension-1)) {
+					System.out.print("   ");
 				}
 			}
 			System.out.println();
