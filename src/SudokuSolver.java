@@ -1,13 +1,22 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class SudokuSolver {
-	static int dimension;
-	static int puzzle[][]; 
+	private int dimension; 
+	public ArrayList<int[][]> solutions;
+	public int puzzle[][];
 	
-	static boolean isValid(Coordinates coord, int value) {
-		if (puzzle[coord.x][coord.y] != 0) {
+	public SudokuSolver(int [][] puzzle, int given){
+		this.puzzle = puzzle;
+		dimension = given;
+		solutions = new ArrayList<int [][]>();
+	}
+	
+	
+	boolean isValid(Coordinates coord, int value) {
+		if (this.puzzle[coord.x][coord.y] != 0) {
 			throw new RuntimeException(
 					"Cannot call for coord which already has a value");
 		}
@@ -30,7 +39,17 @@ public class SudokuSolver {
 		return true;
 	}
 	
-	static Coordinates getNextCell(Coordinates cur) {
+	int[][] copyPuzzle(int a[][]){
+		int copy[][] = new int[dimension][dimension];
+		for (int x = 0; x < dimension; x++) {
+			for (int y = 0; y < dimension; y++) {
+				copy [x][y] = this.puzzle[x][y];
+			}
+		}
+		return copy;
+	}
+	
+	Coordinates getNextCell(Coordinates cur) {
 		int x = cur.x;
 		int y = cur.y;
 		y++;
@@ -45,33 +64,42 @@ public class SudokuSolver {
 		return next;
 	}
 	
-	static boolean solve(Coordinates cur) {
+	 boolean solve(Coordinates cur) {
 		if (cur == null)
 			return true;
-		if (puzzle[cur.x][cur.y] != 0) {
+		
+		if (this.puzzle[cur.x][cur.y] != 0) {
 			return solve(getNextCell(cur));
 		}
-		for (int i = 1; i <= dimension; i++) {
+		for (int i = 1; i <= this.dimension; i++) {
 			boolean valid = isValid(cur, i);
 			if (!valid) 
 				continue;
-			puzzle[cur.x][cur.y] = i;
+			this.puzzle[cur.x][cur.y] = i;
 			boolean solved = solve(getNextCell(cur));
-			if (solved)
-				return true;
-			else
-				puzzle[cur.x][cur.y] = 0; 
+			if (solved){
+					//this.puzzle[cur.x][cur.y]=0;
+				if(cur.x==(this.dimension-1)&& cur.y==(this.dimension-1)){
+					int [][] copy = copyPuzzle(this.puzzle);
+					this.solutions.add(copy);
+				}
+					return true;
+			}
+			else{
+				this.puzzle[cur.x][cur.y] = 0; 
+			}
 		}
 		return false;
 	}
 
 	public static void main(String[] args) throws FileNotFoundException {
+		ArrayList<int [] []>solutions;
 		Scanner keyboard = new Scanner(System.in);
 		System.out.print("Enter a file name: ");
 		String filename = keyboard.nextLine();
 		System.out.print("Enter the number of rows and columns: ");
-		dimension = Integer.parseInt(keyboard.next());
-		puzzle = new int[dimension][dimension];
+		int dimension = Integer.parseInt(keyboard.next());
+		int puzzle[][] = new int[dimension][dimension];
 		File file = new File(filename);
 		Scanner sc = new Scanner(file);
 		int[] numArray = new int[(dimension*dimension)];
@@ -90,16 +118,21 @@ public class SudokuSolver {
 				counter++;
 			}
 		}
-		boolean solved = solve(new Coordinates(0, 0));
+		SudokuSolver solver = new SudokuSolver(puzzle, dimension);
+		boolean solved = solver.solve(new Coordinates(0, 0));
 		if (!solved) {
 			System.out.println("SUDOKU cannot be solved.");
 			return;
 		}
-		printPuzzle(puzzle);
+		solutions = solver.solutions;
+		for(int [][]thePuzzle : solutions){
+			System.out.println();
+			solver.printPuzzle(thePuzzle);
+		}
 		keyboard.close();
 	}
 
-	static void printPuzzle(int puzzle[][]) {
+	void printPuzzle(int puzzle[][]) {
 		boolean once = true;
 		for (int x = 0; x < dimension; x++) {
 			for (int y = 0; y < dimension; y++) {
