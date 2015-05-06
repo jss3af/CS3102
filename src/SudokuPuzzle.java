@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 
 public class SudokuPuzzle{
 	
@@ -28,26 +29,29 @@ public class SudokuPuzzle{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		fc = new JFileChooser();
-		final JButton btnAdd = new JButton("Add");
+		final JButton btnAdd = new JButton("Choose File");
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int returnVal = fc.showOpenDialog(btnAdd);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 	                File file = fc.getSelectedFile();
+	                try {
+						SudokuSolver solver = new SudokuSolver(file, 9);
+						solver.printSolutions();
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 	                
 				}
 			}
 		});
-		btnAdd.setBounds(300, 50, 100, 20);
+		btnAdd.setBounds(590, 640, 100, 20);
 		frame.getContentPane().add(btnAdd);
 		frame.setVisible(true);
 	}
 
 	public static void main(String[] args) {
 		SudokuPuzzle app = new SudokuPuzzle();
-
 	}
-	
-	
-
 }

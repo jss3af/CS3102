@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
+<<<<<<< HEAD
 	<name>SudokuSolver</name>
+=======
+	<name>CS3102</name>
+>>>>>>> 96708596ff163fbd92c998ba13b0e6b6bc2bb412
 	<comment></comment>
 	<projects>
 	</projects>

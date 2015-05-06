@@ -1,25 +1,24 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-//import java.util.Collections;
 import java.util.Scanner;
-//import java.lang.*;
 
 public class SudokuSolver {
-	private static int dimension; 
-	private ArrayList<int[][]> solutions; 
-	private ArrayList<Coordinates> emptyCells;
+	private int dimension;
+	private ArrayList<int[][]> solutions;
+	public ArrayList<Coordinates> emptyCells;
 	private int puzzle[][];
-	private int p1[][];
-	private int p2[][];
-	private int p3[][];
-	private int p4[][];
-	private int p5[][];
-	
-	public SudokuSolver(int [][] puzzle, int given, ArrayList<int[][]> solutions){
-		this.puzzle = puzzle;
+
+	public SudokuSolver(File file, int given) throws FileNotFoundException {
 		dimension = given;
-		this.solutions = new ArrayList<int [][]>();
+		this.puzzle = readInAndMakePuzzle(file);
+		solutions = new ArrayList<int[][]>();
+	}
+	
+	public SudokuSolver(int puzzle[][], int given) {
+		dimension = given;
+		this.puzzle = puzzle;
+		solutions = new ArrayList<int[][]>();
 	}
 	
 	boolean isValid(Coordinates coord, int value, int[][] puzzle) {
@@ -35,44 +34,30 @@ public class SudokuSolver {
 			if (puzzle[row][coord.y] == value)
 				return false;
 		}
-		int x1 = ((int) (Math.sqrt(dimension)) * (coord.x / ((int)Math.sqrt(dimension))));
-		int y1 = ((int) (Math.sqrt(dimension)) * (coord.y / ((int)Math.sqrt(dimension))));
-		int x2 = x1 +((int)Math.sqrt(dimension))-1;
-		int y2 = y1 +((int)Math.sqrt(dimension))-1;
+
+		int x1 = ((int) (Math.sqrt(dimension)) * (coord.x / ((int) Math.sqrt(dimension))));
+		int y1 = ((int) (Math.sqrt(dimension)) * (coord.y / ((int) Math.sqrt(dimension))));
+		int x2 = x1 + ((int) Math.sqrt(dimension)) - 1;
+		int y2 = y1 + ((int) Math.sqrt(dimension)) - 1;
+
 		for (int x = x1; x <= x2; x++)
 			for (int y = y1; y <= y2; y++)
 				if (puzzle[x][y] == value)
 					return false;
 		return true;
 	}
-	
-	int[][] copyPuzzle(int a[][]){
+
+	int[][] copyPuzzle(int a[][]) {
 		int copy[][] = new int[dimension][dimension];
 		for (int x = 0; x < dimension; x++) {
 			for (int y = 0; y < dimension; y++) {
-				copy [x][y] = this.puzzle[x][y];
+				copy[x][y] = this.puzzle[x][y];
 			}
 		}
 		return copy;
 	}
-	
-	Coordinates getNextCell(Coordinates cur) {
-		int x = cur.x;
-		int y = cur.y;
-		y++;
-		if (y > (dimension-1)) {
-			y = 0;
-			x++;
-		}
-		if (x > (dimension-1))
-			return null; 
 
-		Coordinates next = new Coordinates(x, y);
-		return next;
-	}
-	
-	// Method to return ArrayList of empty cells
-    ArrayList<Coordinates> getEmptyCells(int[][] p) {
+    public ArrayList<Coordinates> getEmptyCells(int[][] p) {
     	emptyCells = new ArrayList<Coordinates>();
         for (int x = 0; x < dimension; x++) {
             for (int y = 0; y < dimension; y++) {
@@ -85,34 +70,53 @@ public class SudokuSolver {
         return emptyCells;
     }
 	
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Solve method - i holds the current index of the emptyCells ArrayList
-	private void solve(int[][] puzzle, ArrayList<Coordinates> emptyCells, int currentEmptyCell) {
+    // Recursive method to return all possible solutions to puzzle
+	private void solve(int[][] puzzle, ArrayList<Coordinates> emptyCells, int emptyIndex) {
 		
-		// Base Case: When the current chain of values has arrived at a solution
-        if (currentEmptyCell >= emptyCells.size()) {
+		// Base Case - solution has been reached
+        if (emptyIndex >= emptyCells.size()) {
         	solutions.add(copyPuzzle(puzzle));
         	//printPuzzle(puzzle);
             return;
         }
-
-        // Current emptySpot that is being considered to be filled
-        Coordinates cur = new Coordinates(emptyCells.get(currentEmptyCell).x, emptyCells.get(currentEmptyCell).y);
         
-        // Try all the possible values for current empty cell
+        Coordinates cur = new Coordinates(emptyCells.get(emptyIndex).x, emptyCells.get(emptyIndex).y);
+        
+        // Try all possible values for current empty cell
         for (int val = 1; val <= dimension; val++) {
 			if (isValid(cur, val, puzzle)) {
 				puzzle[cur.x][cur.y] = val;
-				int nextEmptyCell = currentEmptyCell + 1;
-	            solve(puzzle, emptyCells, nextEmptyCell);
-	            // backtrack
+				int nextEmptyIndex = emptyIndex + 1;
+	            solve(puzzle, emptyCells, nextEmptyIndex);
+	            // Backtrack by replacing the current cell value with 0
 	            puzzle[cur.x][cur.y] = 0;
 			}
         }
 	}
 	
+	public int[][] readInAndMakePuzzle(File file) throws FileNotFoundException{
+		Scanner sc = new Scanner(file);
+		int[] numArray = new int[(dimension * dimension)];
+		int puzzle[][] = new int[dimension][dimension];
+		int counter = 0;
+		while (sc.hasNext()) {
+			String next = sc.next();
+			int i = Integer.parseInt(next);
+			numArray[counter] = i;
+			counter++;
+		}
+		sc.close();
+		counter = 0;
+		for (int x = 0; x < dimension; x++) {
+			for (int y = 0; y < dimension; y++) {
+				puzzle[x][y] = numArray[counter];
+				counter++;
+			}
+		}
+		return puzzle;
+	}
+
 	public static void main(String[] args) throws FileNotFoundException {
-		
 		Scanner keyboard = new Scanner(System.in);
 		System.out.print("Enter a file name: ");
 		String filename = keyboard.nextLine();
@@ -124,9 +128,6 @@ public class SudokuSolver {
 		
 		File file = new File(filename);
 		Scanner sc = new Scanner(file);
-		
-		ArrayList<int[][]> solutions = new ArrayList<int[][]>();
-		//ArrayList<Coordinates> emptyCells = new ArrayList<Coordinates>();
 		
 		// Traditional Sudoku
 		if(type == 0) {
@@ -149,7 +150,7 @@ public class SudokuSolver {
 				}
 			}
 			
-			SudokuSolver solver = new SudokuSolver(puzzle, dimension, solutions);
+			SudokuSolver solver = new SudokuSolver(puzzle, dimension);
 			solver.emptyCells = solver.getEmptyCells(puzzle);
 			solver.solve(puzzle, solver.emptyCells, 0);
 			if (solver.solutions.size() == 0) {
@@ -171,10 +172,7 @@ public class SudokuSolver {
 				numArray[counter] = i;
 				counter++;
 			}
-//			for(int t=0; t<numArray.length; t++) {
-//				System.out.println(numArray[t]);
-//			}
-			
+
 			sc.close();
 			counter = 0;
 			int p1[][] = new int[dimension][dimension];
@@ -215,14 +213,9 @@ public class SudokuSolver {
 			}
 			
 			// Solve p5
-			SudokuSolver solver5 = new SudokuSolver(p5, dimension, solutions);
+			SudokuSolver solver5 = new SudokuSolver(p5, dimension);
 			ArrayList<Coordinates> emptyCells5 = solver5.getEmptyCells(p5);
 			solver5.solve(p5, emptyCells5, 0);
-			
-//			for(int i = 0; i < solver5.solutions.size(); i++){
-//				System.out.println();
-//				solver5.printPuzzle(solver5.solutions.get(i));
-//			}
 			
 			// Update p1-p4 with solutions from p5
 			int d = (int) Math.sqrt(dimension);
@@ -272,10 +265,10 @@ public class SudokuSolver {
 			
 			// Solve for p1-p4
 			
-			SudokuSolver solver1 = new SudokuSolver(p1, dimension, solutions);
-			SudokuSolver solver2 = new SudokuSolver(p2, dimension, solutions);
-			SudokuSolver solver3 = new SudokuSolver(p3, dimension, solutions);
-			SudokuSolver solver4 = new SudokuSolver(p4, dimension, solutions);
+			SudokuSolver solver1 = new SudokuSolver(p1, dimension);
+			SudokuSolver solver2 = new SudokuSolver(p2, dimension);
+			SudokuSolver solver3 = new SudokuSolver(p3, dimension);
+			SudokuSolver solver4 = new SudokuSolver(p4, dimension);
 			
 			ArrayList<Coordinates> emptyCells1 = solver1.getEmptyCells(p1);
 			ArrayList<Coordinates> emptyCells2 = solver2.getEmptyCells(p2);
@@ -307,21 +300,34 @@ public class SudokuSolver {
 			
 		}
 	}
+	
+	public void printSolutions(){
+		//solve();
+		for (int[][] thePuzzle : this.solutions) {
+			System.out.println();
+			printPuzzle(thePuzzle);
+		}
+	}
 
-	void printPuzzle(int puzzle[][]) {
+	public ArrayList<int[][]> returnSolutions() {
+		//solve();
+		return this.solutions;
+	}
+
+	public void printPuzzle(int puzzle[][]) {
 		boolean once = true;
 		for (int x = 0; x < dimension; x++) {
 			for (int y = 0; y < dimension; y++) {
-				if ((x) % ((int)Math.sqrt(dimension)) == 0 && once && x != 0) {
+				if ((x) % ((int) Math.sqrt(dimension)) == 0 && once && x != 0) {	
 					System.out.println("                    ");
 					once = false;
 				}
 				int num = puzzle[x][y];
-				if(num<10)
+				if (num < 10)
 					System.out.print(num + "  ");
 				else
 					System.out.print(num + " ");
-				if ((y + 1) % ((int)Math.sqrt(dimension)) == 0 && y != (dimension-1)) {
+				if ((y + 1) % ((int) Math.sqrt(dimension)) == 0 && y != (dimension - 1)) {
 					System.out.print("   ");
 				}
 			}
