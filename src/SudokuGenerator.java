@@ -13,6 +13,11 @@ public class SudokuGenerator {
 		this.puzzle=puzzle;
 		this.with0=generate();
 	}
+	public SudokuGenerator(int dimension){
+		this.dimension = dimension;
+		this.puzzle=new int[dimension][dimension];
+		this.with0=generate();
+	}
 	public void printPuzzle() {
 		boolean once = true;
 		for (int x = 0; x < dimension; x++) {
@@ -80,7 +85,7 @@ public class SudokuGenerator {
 		}
 		solutions = solver.solutions; 
 		int a[][]=solutions.get(0);
-		for(int i=0; i< (int)(.8*dimension*dimension);i++){
+		for(int i=0; i< (int)(.6*dimension*dimension);i++){
 			int x = (int)(Math.random()*dimension);
 			int y = (int)(Math.random()*dimension);
 			if(a[x][y]==0){
