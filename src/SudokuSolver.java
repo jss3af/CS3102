@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class SudokuSolver {
-	private int dimension;
-	private ArrayList<int[][]> solutions;
+	public int dimension;
+	public ArrayList<int[][]> solutions;
 	public ArrayList<Coordinates> emptyCells;
-	private int puzzle[][];
+	public int puzzle[][];
 
 	public SudokuSolver(File file, int given) throws FileNotFoundException {
 		dimension = given;
@@ -71,7 +71,7 @@ public class SudokuSolver {
     }
 	
     // Recursive method to return all possible solutions to puzzle
-	private void solve(int[][] puzzle, ArrayList<Coordinates> emptyCells, int emptyIndex) {
+	public void solve(int[][] puzzle, ArrayList<Coordinates> emptyCells, int emptyIndex) {
 		
 		// Base Case - solution has been reached
         if (emptyIndex >= emptyCells.size()) {

@@ -8,6 +8,7 @@ public class SudokuGenerator {
 	int puzzle[][];
 	int with0 [][];
 	int dimension;
+	
 	public SudokuGenerator(int [][] puzzle, int dimension){
 		this.dimension = dimension;
 		this.puzzle=puzzle;
@@ -46,10 +47,11 @@ public class SudokuGenerator {
 		SudokuGenerator gen = new SudokuGenerator(puzzle, dimension);
 		gen.printPuzzle();
 		keyboard.close();
-		
 	}
+	
 	public int[][] generate() {
-		ArrayList<int [][]> solutions;
+		ArrayList<int [][]> solutions = new ArrayList<int[][]>();
+		//ArrayList<Coordinates> emptyCells = new ArrayList<Coordinates>();
 		for (int out = 0; out < (dimension); out = out
 				+ (int) (Math.sqrt(dimension))) {
 			ArrayList<Integer> option = new ArrayList<Integer>();
@@ -72,12 +74,14 @@ public class SudokuGenerator {
 				}
 			}
 		}
-		SudokuSolver solver = new SudokuSolver(puzzle, dimension);
-		boolean solved = solver.solve(new Coordinates(0, 0));
-		if (!solved) {
+		SudokuSolver solver = new SudokuSolver(puzzle, dimension);	
+		solver.emptyCells = solver.getEmptyCells(puzzle);
+		solver.solve(puzzle, solver.emptyCells, 0);
+		if (solver.solutions.size() == 0) {
 			System.out.println("SUDOKU cannot be generated.");
 			System.exit(0);
 		}
+		
 		solutions = solver.solutions; 
 		int a[][]=solutions.get(0);
 		for(int i=0; i< (int)(.8*dimension*dimension);i++){
