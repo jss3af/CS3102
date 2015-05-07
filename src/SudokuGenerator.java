@@ -51,6 +51,8 @@ public class SudokuGenerator {
 		SudokuGenerator gen = new SudokuGenerator(puzzle, dimension);
 		gen.printPuzzle();
 		keyboard.close();
+		SudokuSolver solver = new SudokuSolver(puzzle, dimension);
+		solver.printSolutions();
 		
 	}
 	public int[][] generate() {

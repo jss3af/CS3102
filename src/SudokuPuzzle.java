@@ -7,6 +7,7 @@ import java.awt.GridLayout;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 
@@ -25,20 +26,20 @@ public class SudokuPuzzle {
 	JButton file;
 
 	public SudokuPuzzle() {
+		frame = new JFrame();
+		frame.setTitle("CS3102 Solver");
+		frame.setSize(2000,2000);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 		initialize();
 	}
 
 	public void initialize() {
-		frame = new JFrame();
 		frame.setTitle("CS3102 Solver");
-		frame.setSize(700, 700);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().removeAll();
 		frame.getContentPane().setLayout(null);
 		fc = new JFileChooser();
 		int[] dimensions = { 4, 9, 16, 25, 36 };
-
-		// Create the combo box, select item at index 4.
-		// Indices start at 0, so 4 specifies the pig.
 		final JComboBox<Integer> dimList = new JComboBox<Integer>();
 		for (int i = 0; i < 5; i++) {
 			dimList.addItem(dimensions[i]);
@@ -64,7 +65,8 @@ public class SudokuPuzzle {
 					try {
 						SudokuSolver solver = new SudokuSolver(file,
 								(Integer) (dimList.getSelectedItem()));
-						showPuzzle(solver.returnSolutions());
+						frame.getContentPane().removeAll();
+						showPuzzle(solver.returnSolutions(),0);
 					} catch (FileNotFoundException e1) {
 						e1.printStackTrace();
 					}
@@ -78,54 +80,118 @@ public class SudokuPuzzle {
 
 				SudokuGenerator gen = new SudokuGenerator((Integer) (dimList
 						.getSelectedItem()));
+				frame.getContentPane().removeAll();
 				showPuzzle(gen.returnPuzzle());
 
 			}
 		});
-		generate.setBounds(275, 325, 150, 20);
-		btnAdd.setBounds(300, 300, 100, 20);
+		generate.setBounds(150, 10, 150, 20);
+		btnAdd.setBounds(315, 10, 100, 20);
 		frame.getContentPane().add(btnAdd);
 		frame.getContentPane().add(generate);
 		frame.setVisible(true);
 	}
 
-	public void showPuzzle(ArrayList<int[][]> solutions) {
-		frame.getContentPane().removeAll();
-		int puzzle[][] = solutions.get(0);
+	public void showPuzzle(final ArrayList<int[][]> solutions, final int index) {
+		//frame.getContentPane().removeAll();
+//		frame = new JFrame();
+//		frame.setTitle("CS3102 Solver");
+//		frame.setSize(2000,2000);
+//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+		if(solutions.isEmpty()){
+			frame.getContentPane().removeAll();
+			initialize();
+		}
+		int puzzle[][] = solutions.get(index);
 		int dimension = puzzle[0].length;
-		frame.setSize(700, 700);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new GridLayout(dimension, dimension));
+		JPanel p = new JPanel(new GridLayout(dimension, dimension));
+		//frame.getContentPane().add(p);
+		frame.getContentPane().setLayout(new GridLayout(1, 2));
+		 //frame.getContentPane().setLayout(new GridLayout(dimension,
+//		 dimension));
 		for (int x = 0; x < dimension; x++) {
 			for (int y = 0; y < dimension; y++) {
 				JTextField a = new JTextField("" + puzzle[x][y]);
 				a.setEditable(false);
-				frame.getContentPane().add(a);
+				p.add(a);
 			}
 		}
+		frame.getContentPane().add(p);
+		final JButton reset = new JButton("Reset");
+		reset.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.getContentPane().removeAll();
+				//frame.revalidate();
+				frame.repaint(100);
+				initialize();
+			}
+		});
+		if ((solutions.size()-1) - index > 0) {
+			final JButton next = new JButton("Next");
+			next.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					frame.getContentPane().removeAll();
+					//frame.revalidate();
+					frame.repaint(100);
+					showPuzzle(solutions, (index + 1));
+				}
+			});
+			JPanel inside = new JPanel(new GridLayout(2,1));
+			inside.add(reset);
+			inside.add(next);
+			frame.getContentPane().add(inside);
+		} else {
+			frame.getContentPane().add(reset);
+		}
+		
+		//frame.getContentPane().add(reset);
+		
 		frame.setVisible(true);
 
 	}
 
-	public void showPuzzle(int puzzle[][]) {
-		frame.getContentPane().removeAll();
-		int dimension = puzzle[0].length;
-		frame.setSize(700, 700);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new GridLayout(dimension, dimension));
+	public void showPuzzle(final int puzzle[][]) {
+		//frame.getContentPane().removeAll();
+		final int dimension = puzzle[0].length;
+		JPanel p = new JPanel(new GridLayout(dimension, dimension));
+		frame.getContentPane().setLayout(new GridLayout(1, 2));
+		frame.getContentPane().add(p);
 		for (int x = 0; x < dimension; x++) {
 			for (int y = 0; y < dimension; y++) {
 				JTextField a;
-				if(puzzle[x][y]!=0){
-				a = new JTextField("" + puzzle[x][y]);
-				}
-				else{
+				if (puzzle[x][y] != 0) {
+					a = new JTextField("" + puzzle[x][y]);
+				} else {
 					a = new JTextField(" ");
 				}
 				a.setEditable(false);
-				frame.getContentPane().add(a);
+				p.add(a);
 			}
 		}
+		final JButton reset = new JButton("Reset");
+		reset.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.getContentPane().removeAll();
+//				frame.revalidate();
+				frame.repaint(100);
+				initialize();
+			}
+		});
+		final JButton solve = new JButton("Solve");
+		solve.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.getContentPane().removeAll();
+//				frame.revalidate();
+				frame.repaint(100);
+				SudokuSolver solver = new SudokuSolver(puzzle, dimension);
+				showPuzzle(solver.returnSolutions(), 0);
+			}
+		});
+		JPanel inside = new JPanel(new GridLayout(2, 1));
+		inside.add(reset);
+		inside.add(solve);
+		frame.getContentPane().add(inside);
 		frame.setVisible(true);
 
 	}
