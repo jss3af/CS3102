@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -56,6 +57,8 @@ public class SudokuPuzzle {
 		label.setBounds(10, 10, 80, 20);
 		frame.getContentPane().add(dimList);
 		frame.getContentPane().add(label);
+		final JCheckBox samurai = new JCheckBox("Samurai");
+		samurai.setSelected(false);
 		final JButton btnAdd = new JButton("Choose File");
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -63,10 +66,15 @@ public class SudokuPuzzle {
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = fc.getSelectedFile();
 					try {
+						if(!samurai.isSelected()){
 						SudokuSolver solver = new SudokuSolver(file,
 								(Integer) (dimList.getSelectedItem()));
 						frame.getContentPane().removeAll();
 						showPuzzle(solver.returnSolutions(),0);
+						}
+						else{
+							//samurai stuff
+						}
 					} catch (FileNotFoundException e1) {
 						e1.printStackTrace();
 					}
@@ -87,6 +95,8 @@ public class SudokuPuzzle {
 		});
 		generate.setBounds(150, 10, 150, 20);
 		btnAdd.setBounds(315, 10, 100, 20);
+		samurai.setBounds(430,10,100,20);
+		frame.getContentPane().add(samurai);
 		frame.getContentPane().add(btnAdd);
 		frame.getContentPane().add(generate);
 		frame.setVisible(true);
