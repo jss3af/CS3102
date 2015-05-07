@@ -6,18 +6,21 @@ import java.util.Scanner;
 
 public class SudokuGenerator {
 	int puzzle[][];
-	int with0 [][];
+	int with0[][];
 	int dimension;
-	public SudokuGenerator(int [][] puzzle, int dimension){
+
+	public SudokuGenerator(int[][] puzzle, int dimension) {
 		this.dimension = dimension;
-		this.puzzle=puzzle;
-		this.with0=generate();
+		this.puzzle = puzzle;
+		this.with0 = generate();
 	}
-	public SudokuGenerator(int dimension){
+
+	public SudokuGenerator(int dimension) {
 		this.dimension = dimension;
-		this.puzzle=new int[dimension][dimension];
-		this.with0=generate();
+		this.puzzle = new int[dimension][dimension];
+		this.with0 = generate();
 	}
+
 	public void printPuzzle() {
 		boolean once = true;
 		for (int x = 0; x < dimension; x++) {
@@ -40,9 +43,11 @@ public class SudokuGenerator {
 			once = true;
 		}
 	}
-	public int[][] returnPuzzle(){
+
+	public int[][] returnPuzzle() {
 		return this.with0;
 	}
+
 	public static void main(String[] args) throws FileNotFoundException {
 		Scanner keyboard = new Scanner(System.in);
 		System.out.print("Enter the number of rows and columns: ");
@@ -53,10 +58,11 @@ public class SudokuGenerator {
 		keyboard.close();
 		SudokuSolver solver = new SudokuSolver(puzzle, dimension);
 		solver.printSolutions();
-		
+
 	}
+
 	public int[][] generate() {
-		ArrayList<int [][]> solutions;
+		ArrayList<int[][]> solutions;
 		for (int out = 0; out < (dimension); out = out
 				+ (int) (Math.sqrt(dimension))) {
 			ArrayList<Integer> option = new ArrayList<Integer>();
@@ -85,16 +91,15 @@ public class SudokuGenerator {
 			System.out.println("SUDOKU cannot be generated.");
 			System.exit(0);
 		}
-		solutions = solver.solutions; 
-		int a[][]=solutions.get(0);
-		for(int i=0; i< (int)(.6*dimension*dimension);i++){
-			int x = (int)(Math.random()*dimension);
-			int y = (int)(Math.random()*dimension);
-			if(a[x][y]==0){
+		solutions = solver.solutions;
+		int a[][] = solutions.get(0);
+		for (int i = 0; i < (int) (.6 * dimension * dimension); i++) {
+			int x = (int) (Math.random() * dimension);
+			int y = (int) (Math.random() * dimension);
+			if (a[x][y] == 0) {
 				i--;
-			}
-			else{
-				a[x][y]=0;
+			} else {
+				a[x][y] = 0;
 			}
 		}
 		return a;

@@ -1,8 +1,10 @@
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.GridLayout;
 
 import javax.swing.JCheckBox;
@@ -11,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.swing.text.Caret;
 
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
@@ -29,7 +32,7 @@ public class SudokuPuzzle {
 	public SudokuPuzzle() {
 		frame = new JFrame();
 		frame.setTitle("CS3102 Solver");
-		frame.setSize(2000,2000);
+		frame.setSize(2000, 2000);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 		initialize();
@@ -37,7 +40,7 @@ public class SudokuPuzzle {
 
 	public void initialize() {
 		frame.setTitle("CS3102 Solver");
-		frame.getContentPane().removeAll();
+		//frame.getContentPane().removeAll();
 		frame.getContentPane().setLayout(null);
 		fc = new JFileChooser();
 		int[] dimensions = { 4, 9, 16, 25, 36 };
@@ -66,16 +69,16 @@ public class SudokuPuzzle {
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = fc.getSelectedFile();
 					try {
-						if(!samurai.isSelected()){
-						SudokuSolver solver = new SudokuSolver(file,
-								(Integer) (dimList.getSelectedItem()));
-						frame.getContentPane().removeAll();
-						showPuzzle(solver.returnSolutions(),0);
-						}
-						else{
-							SamuraiSudoku solver = new SamuraiSudoku(file, (Integer) (dimList.getSelectedItem()));
+						if (!samurai.isSelected()) {
+							SudokuSolver solver = new SudokuSolver(file,
+									(Integer) (dimList.getSelectedItem()));
 							frame.getContentPane().removeAll();
-							showPuzzle(solver.returnSolutions(),0);
+							showPuzzle(solver.returnSolutions(), 0);
+						} else {
+							SamuraiSudoku solver = new SamuraiSudoku(file,
+									(Integer) (dimList.getSelectedItem()));
+							frame.getContentPane().removeAll();
+							showPuzzle(solver.returnSolutions(), 0);
 						}
 					} catch (FileNotFoundException e1) {
 						e1.printStackTrace();
@@ -97,7 +100,7 @@ public class SudokuPuzzle {
 		});
 		generate.setBounds(150, 10, 150, 20);
 		btnAdd.setBounds(315, 10, 100, 20);
-		samurai.setBounds(430,10,100,20);
+		samurai.setBounds(430, 10, 100, 20);
 		frame.getContentPane().add(samurai);
 		frame.getContentPane().add(btnAdd);
 		frame.getContentPane().add(generate);
@@ -105,27 +108,33 @@ public class SudokuPuzzle {
 	}
 
 	public void showPuzzle(final ArrayList<int[][]> solutions, final int index) {
-		//frame.getContentPane().removeAll();
-//		frame = new JFrame();
-//		frame.setTitle("CS3102 Solver");
-//		frame.setSize(2000,2000);
-//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
-		if(solutions.isEmpty()){
+		if (solutions.isEmpty()) {
 			frame.getContentPane().removeAll();
+			frame.getContentPane().setLayout(null);
+			JLabel warning = new JLabel("Puzzle cannot be solved");
+			warning.setBounds(350,350,200,100);
+			frame.getContentPane().add(warning);
+			frame.repaint(100);
 			initialize();
+			return;
 		}
 		int puzzle[][] = solutions.get(index);
 		int dimension = puzzle[0].length;
+		Font font = new Font("Courier", Font.BOLD,12);
 		JPanel p = new JPanel(new GridLayout(dimension, dimension));
-		//frame.getContentPane().add(p);
 		frame.getContentPane().setLayout(new GridLayout(1, 2));
-		 //frame.getContentPane().setLayout(new GridLayout(dimension,
-//		 dimension));
 		for (int x = 0; x < dimension; x++) {
 			for (int y = 0; y < dimension; y++) {
 				JTextField a = new JTextField("" + puzzle[x][y]);
 				a.setEditable(false);
+				if(index>0){
+					if (solutions.get(index-1)[x][y]!=puzzle[x][y]){
+						a.setForeground(Color.RED);
+					}
+					else {
+						a.setForeground(Color.BLACK);
+					}
+				}
 				p.add(a);
 			}
 		}
@@ -134,37 +143,37 @@ public class SudokuPuzzle {
 		reset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.getContentPane().removeAll();
-				//frame.revalidate();
+				// frame.revalidate();
 				frame.repaint(100);
 				initialize();
 			}
 		});
-		if ((solutions.size()-1) - index > 0) {
+		if ((solutions.size() - 1) - index > 0) {
 			final JButton next = new JButton("Next");
 			next.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					frame.getContentPane().removeAll();
-					//frame.revalidate();
+					// frame.revalidate();
 					frame.repaint(100);
 					showPuzzle(solutions, (index + 1));
 				}
 			});
-			JPanel inside = new JPanel(new GridLayout(2,1));
+			JPanel inside = new JPanel(new GridLayout(2, 1));
 			inside.add(reset);
 			inside.add(next);
 			frame.getContentPane().add(inside);
 		} else {
 			frame.getContentPane().add(reset);
 		}
-		
-		//frame.getContentPane().add(reset);
-		
+
+		// frame.getContentPane().add(reset);
+
 		frame.setVisible(true);
 
 	}
 
 	public void showPuzzle(final int puzzle[][]) {
-		//frame.getContentPane().removeAll();
+		// frame.getContentPane().removeAll();
 		final int dimension = puzzle[0].length;
 		JPanel p = new JPanel(new GridLayout(dimension, dimension));
 		frame.getContentPane().setLayout(new GridLayout(1, 2));
@@ -185,7 +194,7 @@ public class SudokuPuzzle {
 		reset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.getContentPane().removeAll();
-//				frame.revalidate();
+				// frame.revalidate();
 				frame.repaint(100);
 				initialize();
 			}
@@ -194,7 +203,7 @@ public class SudokuPuzzle {
 		solve.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.getContentPane().removeAll();
-//				frame.revalidate();
+				// frame.revalidate();
 				frame.repaint(100);
 				SudokuSolver solver = new SudokuSolver(puzzle, dimension);
 				showPuzzle(solver.returnSolutions(), 0);
